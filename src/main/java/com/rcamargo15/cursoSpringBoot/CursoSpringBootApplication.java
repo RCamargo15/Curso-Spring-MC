@@ -1,5 +1,6 @@
 package com.rcamargo15.cursoSpringBoot;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,13 +13,20 @@ import com.rcamargo15.cursoSpringBoot.domain.Cidade;
 import com.rcamargo15.cursoSpringBoot.domain.Cliente;
 import com.rcamargo15.cursoSpringBoot.domain.Endereco;
 import com.rcamargo15.cursoSpringBoot.domain.Estado;
+import com.rcamargo15.cursoSpringBoot.domain.Pagamento;
+import com.rcamargo15.cursoSpringBoot.domain.PagamentoComBoleto;
+import com.rcamargo15.cursoSpringBoot.domain.PagamentoComCartao;
+import com.rcamargo15.cursoSpringBoot.domain.Pedido;
 import com.rcamargo15.cursoSpringBoot.domain.Produto;
+import com.rcamargo15.cursoSpringBoot.domain.enums.EstadoPagamento;
 import com.rcamargo15.cursoSpringBoot.domain.enums.TipoCliente;
 import com.rcamargo15.cursoSpringBoot.repositories.CategoriaRepository;
 import com.rcamargo15.cursoSpringBoot.repositories.CidadeRepository;
 import com.rcamargo15.cursoSpringBoot.repositories.ClienteRepository;
 import com.rcamargo15.cursoSpringBoot.repositories.EnderecoRepository;
 import com.rcamargo15.cursoSpringBoot.repositories.EstadoRepository;
+import com.rcamargo15.cursoSpringBoot.repositories.PagamentoRepository;
+import com.rcamargo15.cursoSpringBoot.repositories.PedidoRepository;
 import com.rcamargo15.cursoSpringBoot.repositories.ProdutoRepository;
 
 @SpringBootApplication
@@ -41,6 +49,12 @@ public class CursoSpringBootApplication implements CommandLineRunner {
 	
 	@Autowired
 	ClienteRepository clienteRepository;
+	
+	@Autowired
+	private PedidoRepository pedidoRepository;
+	
+	@Autowired
+	private PagamentoRepository pagamentoRepository;
 	
 	public static void main(String[] args) {
 		SpringApplication.run(CursoSpringBootApplication.class, args);
@@ -86,6 +100,23 @@ public class CursoSpringBootApplication implements CommandLineRunner {
 		
 		clienteRepository.saveAll(Arrays.asList(cli1));
 		enderecoRepository.saveAll(Arrays.asList(e1,e2));
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+		
+		Pedido ped1 = new Pedido(null, sdf.parse("30/09/2017 10:32"), cli1, e1);
+		Pedido ped2 = new Pedido(null, sdf.parse("10/10/2017 19:32"), cli1, e2);
+		
+		Pagamento pagto1 = new PagamentoComCartao(null, EstadoPagamento.QUITADO, ped1, 6);
+		ped1.setPagamento(pagto1);
+		
+		Pagamento pagto2 = new PagamentoComBoleto(null, EstadoPagamento.PENDENTE, ped2, sdf.parse("20/10/2017 00:00"), null);
+		ped2.setPagamento(pagto2);
+		
+		cli1.setPedidos(Arrays.asList(ped1,ped2));
+		
+		pedidoRepository.saveAll(Arrays.asList(ped1,ped2));
+		pagamentoRepository.saveAll(Arrays.asList(pagto1, pagto2));
+
 		
 		
 	}
